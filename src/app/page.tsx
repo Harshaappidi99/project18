@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { IntroSplash } from "@/components/intro-splash"
 import { 
   Trophy, 
   Target, 
@@ -45,8 +47,34 @@ const stats = [
 ]
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true)
+  const [hasSeenIntro, setHasSeenIntro] = useState(false)
+
+  useEffect(() => {
+    // Check if user has seen intro this session
+    const seen = sessionStorage.getItem('pxviii-intro-seen')
+    if (seen) {
+      setShowIntro(false)
+      setHasSeenIntro(true)
+    }
+  }, [])
+
+  const handleIntroComplete = () => {
+    setShowIntro(false)
+    setHasSeenIntro(true)
+    sessionStorage.setItem('pxviii-intro-seen', 'true')
+  }
+
   return (
-    <div className="min-h-screen">
+    <>
+      {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
+      
+      <motion.div 
+        className="min-h-screen"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showIntro ? 0 : 1 }}
+        transition={{ duration: 0.5 }}
+      >
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -332,6 +360,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+    </motion.div>
+    </>
   )
 }
